@@ -8,7 +8,7 @@ var validPointer = false;
 
 //* ON/OFF SWITCH. ==============================================
 
-export fn initialize() void {
+export fn gpa_alloc_initialize() void {
     // Thanks to Eyad for notifying that this will need to be [.init]
     // instead of [{}] when 0.14 releases.
     // todo: 0.14 release fix.
@@ -17,19 +17,22 @@ export fn initialize() void {
     gpa = std.heap.GeneralPurposeAllocator(.{}){};
     allocator = gpa.allocator();
     validPointer = true;
+
+    std.debug.print("Initialized Zig Allocator.\n", .{});
 }
 
-export fn terminate() void {
+export fn gpa_alloc_terminate() void {
     const deinitStatus = gpa.deinit();
     if (deinitStatus == .leak) {
         std.log.err("[Allocator]: Error, memory leak.", .{});
     }
     validPointer = false;
+    std.debug.print("Terminated Zig Allocator.\n", .{});
 }
 
 //* PUBLIC API. ===========================================================
 
-export fn alloc(n: usize) [*]u8 {
+export fn gpa_alloc_alloc(n: usize) [*]u8 {
     const zigThing = allocator.alloc(u8, n) catch |err| {
         std.log.err("{}", .{err});
         std.process.exit(1);
@@ -37,7 +40,7 @@ export fn alloc(n: usize) [*]u8 {
     return zigThing.ptr;
 }
 
-export fn free(memory: [*]u8, sizeOfMemory: isize) void {
+export fn gpa_alloc_free(memory: [*]u8, sizeOfMemory: isize) void {
     const hackjob: []u8 = memory[0..@intCast(sizeOfMemory)];
     allocator.free(hackjob);
 }
@@ -47,7 +50,7 @@ export fn free(memory: [*]u8, sizeOfMemory: isize) void {
 ///
 /// We will use this to cast it and let Zig catch it. (I hope)
 ///
-export fn realloc(oldMem: [*]u8, oldSize: isize, newSize: isize) [*]u8 {
+export fn gpa_alloc_realloc(oldMem: [*]u8, oldSize: isize, newSize: isize) [*]u8 {
     const hackjob: []u8 = oldMem[0..@intCast(oldSize)];
 
     const zigThing: []u8 = allocator.realloc(hackjob, @intCast(newSize)) catch |err| {
