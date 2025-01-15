@@ -1,6 +1,11 @@
 program main
-  use fortran_zig, only: say_hello
-  implicit none
+   use :: gpa_alloc
+   implicit none
 
-  call say_hello()
+   !  call say_hello()
+
+   call gpa_alloc_initialize()
+
+
+   call gpa_alloc_terminate()
 end program main
