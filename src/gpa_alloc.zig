@@ -32,8 +32,8 @@ export fn gpa_alloc_terminate() void {
 
 //* PUBLIC API. ===========================================================
 
-export fn gpa_alloc_alloc(n: usize) [*]u8 {
-    const zigThing = allocator.alloc(u8, n) catch |err| {
+export fn gpa_alloc_alloc(sizeOfTypeInBytes: i32) [*]u8 {
+    const zigThing = allocator.alloc(u8, @intCast(sizeOfTypeInBytes)) catch |err| {
         std.log.err("{}", .{err});
         std.process.exit(1);
     };
